@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Deploy with: firebase deploy --only firestore:rules
+// (requires firebase-tools and `firebase use <project-id>` first)
+//
+// Matches the app's deliberate design — an open, no-login shared list, same
+// philosophy as the bar-rating app it's based on. Unlike that app (which
+// shipped with no rules file at all), this scopes public read/write to
+// exactly the three collections the app uses, rather than leaving the whole
+// project's default rules to decide. Nothing here is sensitive data: no
+// user accounts, no payment info, no PII beyond free-text notes someone
+// chooses to type in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The single shared document holding every restaurant + ranking duel.
+    match /lunchRadius/{docId} {
+      allow read, write: if true;
+    }
+
+    // Shared 24h cache of Google Places search results (also written
+    // server-side via the REST API with no auth header — this must stay
+    // open for that to work).
+    match /placesSearchCache/{docId} {
+      allow read, write: if true;
+    }
+
+    // Shared 30-day cache of office -> restaurant walking times.
+    match /walkTimeCache/{docId} {
+      allow read, write: if true;
+    }
+
+    // Cached geocoded office location.
+    match /config/{docId} {
+      allow read, write: if true;
+    }
+
+    // Everything else in the project is denied by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
