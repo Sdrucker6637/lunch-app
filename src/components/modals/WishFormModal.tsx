@@ -11,7 +11,7 @@ export default function WishFormModal() {
 
   return (
     <Modal onClose={() => setShowWishForm(false)}>
-      <h3 className="mt-0 font-display text-lg font-bold text-ink">Add to Want to Try</h3>
+      <h3 className="mt-0 font-display text-xl tracking-wide text-ink">Add to Want to Try</h3>
       <form onSubmit={saveWishForm}>
         <div className="mb-2.5 flex flex-col gap-1">
           <label className="font-display text-[0.68rem] font-semibold uppercase tracking-[0.05em] text-ink-faint">

@@ -19,7 +19,7 @@ export default function VisitedNamePromptModal() {
 
   return (
     <Modal onClose={() => setShowVisitedNamePrompt(false)}>
-      <h3 className="mt-0 font-display text-lg font-bold text-ink">Where did you eat?</h3>
+      <h3 className="mt-0 font-display text-xl tracking-wide text-ink">Where did you eat?</h3>
       <form
         onSubmit={(e) => {
           e.preventDefault();

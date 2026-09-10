@@ -122,7 +122,7 @@ export default function MapView({ spots }: MapViewProps) {
 
       // Office marker — the fixed anchor every walk time is measured from.
       const officeIcon = L.divIcon({
-        html: `<div style="width:22px;height:22px;border-radius:999px;background:#FF5A36;border:3px solid white;box-shadow:0 2px 8px rgba(255,90,54,0.5);"></div>`,
+        html: `<div style="width:24px;height:24px;border-radius:999px;background:#FF4321;border:3px solid #201A14;box-shadow:2px 2px 0 0 #201A14;"></div>`,
         className: "",
         iconSize: [22, 22],
         iconAnchor: [11, 11],
@@ -165,7 +165,7 @@ export default function MapView({ spots }: MapViewProps) {
         const dotColor = mode === "visited" ? colorAtGradient(stops, tFor(i)) : HEAT_DOT_COLOR[mode];
         L.circleMarker([s.latitude as number, s.longitude as number], {
           radius: 7,
-          color: "#FFFBF3",
+          color: "#201A14",
           weight: 2,
           fillColor: dotColor,
           fillOpacity: 1,
@@ -188,25 +188,25 @@ export default function MapView({ spots }: MapViewProps) {
     <div>
       <div className="relative">
         <div ref={mapNodeRef} className="lr-heatmap-container" />
-        <div className="absolute right-3 top-3 z-[1000] inline-flex gap-1 rounded-full border-2 border-ink/10 bg-white/95 p-1 shadow-card backdrop-blur-sm">
-          <button className={`${chipCls} !px-2.5 !py-1 ${mode === "visited" ? chipActiveCls : ""}`} onClick={() => setMode("visited")}>
+        <div className="absolute right-3 top-3 z-[1000] inline-flex gap-1 rounded-full border-2 border-ink bg-paper-50/95 p-1 shadow-stamp-sm backdrop-blur-sm">
+          <button className={`${chipCls} !border-0 !shadow-none !px-2.5 !py-1 ${mode === "visited" ? chipActiveCls : ""}`} onClick={() => setMode("visited")}>
             Rated
           </button>
-          <button className={`${chipCls} !px-2.5 !py-1 ${mode === "wishlist" ? chipActiveCls : ""}`} onClick={() => setMode("wishlist")}>
+          <button className={`${chipCls} !border-0 !shadow-none !px-2.5 !py-1 ${mode === "wishlist" ? chipActiveCls : ""}`} onClick={() => setMode("wishlist")}>
             Want to Try
           </button>
         </div>
       </div>
-      <div className="mt-4 font-display text-[0.75rem] font-semibold text-ink-faint">
-        {geoSpots.length} spot{geoSpots.length === 1 ? "" : "s"} plotted around the office.
+      <div className="mt-4 font-display text-[0.78rem] tracking-wide text-ink-faint">
+        {geoSpots.length} SPOT{geoSpots.length === 1 ? "" : "S"} PLOTTED AROUND THE OFFICE
       </div>
-      <div className="mt-2.5 flex items-center gap-2.5 font-display text-[0.7rem] font-medium text-ink-faint">
-        lower score
+      <div className="mt-2.5 flex items-center gap-2.5 font-display text-[0.7rem] tracking-wide text-ink-faint">
+        LOWER SCORE
         <span
-          className="h-2 w-[120px] rounded-full"
+          className="h-2.5 w-[120px] rounded-full border-2 border-ink"
           style={{ background: `linear-gradient(90deg, ${Object.values(HEAT_GRADIENTS[mode]).join(",")})` }}
         />
-        {mode === "visited" ? "top rated" : "denser cluster"}
+        {mode === "visited" ? "TOP RATED" : "DENSER CLUSTER"}
       </div>
     </div>
   );

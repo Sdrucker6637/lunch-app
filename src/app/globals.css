@@ -4,13 +4,21 @@
 
 html,
 body {
-  background: #fffbf3;
-  color: #2a2420;
+  background: #fbf2dd;
+  color: #201a14;
 }
 
 body {
   font-family: var(--font-jakarta), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Faint paper grain — a repeating dot lattice, not a photo asset, so it
+     stays crisp at any size and costs nothing to load. */
+  background-image: radial-gradient(rgba(32, 26, 20, 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+.font-display {
+  letter-spacing: 0.01em;
 }
 
 ::-webkit-scrollbar {
@@ -21,11 +29,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 90, 54, 0.25);
+  background: rgba(255, 67, 33, 0.3);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 90, 54, 0.45);
+  background: rgba(255, 67, 33, 0.5);
 }
 
 .lr-scroll-x {
@@ -33,19 +41,20 @@ body {
   scrollbar-width: thin;
 }
 
-/* Leaflet map popup restyle to match the bright theme */
+/* Leaflet popup restyle to match the ticket/stamp theme */
 .leaflet-popup-content-wrapper {
-  background: #fffbf3;
-  color: #2a2420;
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(42, 36, 32, 0.18);
+  background: #fbf2dd;
+  color: #201a14;
+  border-radius: 0.9rem;
+  border: 2px solid #201a14;
+  box-shadow: 3px 3px 0 0 #201a14;
 }
 .leaflet-popup-tip {
-  background: #fffbf3;
+  background: #fbf2dd;
 }
 .leaflet-container {
   font-family: var(--font-jakarta), system-ui, sans-serif;
-  background: #fff3de;
+  background: #f5e6c4;
 }
 
 .lr-heatmap-container {
@@ -53,7 +62,8 @@ body {
   width: 100%;
   border-radius: 1.5rem;
   overflow: hidden;
-  border: 2px solid rgba(42, 36, 32, 0.05);
+  border: 3px solid #201a14;
+  box-shadow: 5px 5px 0 0 #201a14;
 }
 
 @keyframes lr-pop-in {
@@ -68,4 +78,52 @@ body {
 }
 .lr-modal-pop {
   animation: lr-pop-in 0.18s ease-out;
+}
+
+/* Scalloped "ticket" edge — a row of paper-colored half-circles cut into the
+   bottom of a card, like a torn receipt or a raffle-ticket stub. Pure CSS,
+   no image. Use on a card's ::after pseudo-element sized to taste. */
+.lr-ticket-edge {
+  background-image: radial-gradient(circle at 9px 0, transparent 9px, #fbf2dd 9.5px);
+  background-size: 18px 18px;
+  background-repeat: repeat-x;
+  background-position: bottom left;
+}
+
+/* Sunburst backdrop for the "Today's Champion" placard — a CSS conic
+   gradient standing in for a printed starburst poster background. */
+.lr-sunburst {
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 184, 0, 0.55) 0deg 9deg,
+    rgba(255, 184, 0, 0) 9deg 18deg
+  );
+}
+
+/* Confetti piece — a tiny rotated rect that falls + spins, spawned in JS. */
+@keyframes lr-confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(140px) rotate(540deg);
+    opacity: 0;
+  }
+}
+.lr-confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: lr-confetti-fall 900ms cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
+  pointer-events: none;
+}
+
+/* Chunky focus ring consistent with the stamped/tactile language — replaces
+   the browser default everywhere a control opts in. */
+.lr-focus:focus-visible {
+  outline: 3px solid #7a3fe0;
+  outline-offset: 2px;
 }

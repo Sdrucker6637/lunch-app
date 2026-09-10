@@ -57,17 +57,17 @@ export default function ExploreView() {
       </button>
 
       <div className="mt-10 mb-1">
-        <div className={kickerCls}>Want to Try</div>
-        <div className="mt-1 flex items-center gap-3">
-          <h2 className="m-0 font-display text-xl font-extrabold text-ink">Your List</h2>
-          <div className="h-px flex-1 bg-ink/10" />
-          <span className="font-display text-[0.72rem] font-semibold text-ink-faint">
-            {filteredToTry.length} spot{filteredToTry.length === 1 ? "" : "s"}
+        <div className={kickerCls}>WANT TO TRY</div>
+        <div className="mt-1.5 flex items-center gap-3">
+          <h2 className="m-0 font-display text-2xl tracking-wide text-ink">Your List</h2>
+          <div className="h-[3px] flex-1 rounded-full bg-ink/10" />
+          <span className="rounded-full border-2 border-ink bg-paper-100 px-2.5 py-0.5 font-display text-[0.72rem] tracking-wide text-ink-soft">
+            {filteredToTry.length} SPOT{filteredToTry.length === 1 ? "" : "S"}
           </span>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2.5">
+      <div className="mt-4 flex flex-col gap-3">
         {filteredToTry.length === 0 && (
           <EmptyState icon={<Icon name="ledger" size={18} />} title="Nothing on the list yet." hint="Use the button above to add one" />
         )}

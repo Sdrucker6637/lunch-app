@@ -99,25 +99,25 @@ export const LUNCH_TYPES = [
   "coffee_shop",
 ];
 
-// Warm citrus gradient for the map — coral (far/lower score) through gold to
-// fresh green (very close / top score). Distinct from any dark, cool theme.
+// Deli-ticket gradient for the map — chili red (lower score) through egg-yolk
+// gold to pickle green (top score). Matches the "stamped ticket" palette.
 export const HEAT_GRADIENTS: Record<"visited" | "wishlist", Record<number, string>> = {
   visited: {
-    0.0: "#FFB199", // soft coral — lower tier
-    0.25: "#FF8A6B",
-    0.5: "#FFC93C", // sunny gold
-    0.75: "#8FD9A8",
-    1.0: "#1FB6A6", // fresh teal — top rated
+    0.0: "#FF7A54", // chili-300 — lower tier
+    0.25: "#FF4321",
+    0.5: "#FFB800", // yolk
+    0.75: "#5FC383",
+    1.0: "#1E8E4F", // pickle — top rated
   },
   wishlist: {
     0.0: "#FFE3AE",
-    0.25: "#FFD27A",
-    0.5: "#FFC93C",
-    0.75: "#F0AE0E",
-    1.0: "#E8471F",
+    0.25: "#FFCE47",
+    0.5: "#FFB800",
+    0.75: "#E29E00",
+    1.0: "#FF4321",
   },
 };
 
 export const HEAT_DOT_COLOR: Record<"wishlist", string> = {
-  wishlist: "#FFC93C",
+  wishlist: "#FFB800",
 };

@@ -43,27 +43,26 @@ export default function RankView() {
       />
 
       {champ && (
-        <div className="relative mb-8 overflow-hidden rounded-3xl border-2 border-sunny-600/30 bg-white">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(75%_120%_at_15%_-10%,rgba(255,201,60,0.16),transparent_60%)]"
-          />
-          <div className="relative flex flex-col gap-5 px-6 py-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-8 sm:py-7">
+        <div className="relative mb-9 overflow-hidden rounded-ticket border-[3px] border-ink bg-paper-50 shadow-stamp-lg">
+          <div aria-hidden="true" className="lr-sunburst pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-70" />
+          <div className="relative flex flex-col gap-6 px-6 py-7 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-9 sm:py-8">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-sunny-600">
-                <Icon name="trophy" size={14} />
-                Today's Top Pick
+              <div className="inline-flex -rotate-2 items-center gap-1.5 rounded-full border-2 border-ink bg-yolk px-3 py-1 font-display text-[0.7rem] tracking-[0.08em] text-ink">
+                <Icon name="star" size={12} filled />
+                TODAY&apos;S CHAMPION
               </div>
-              <div className="mt-2.5 font-display text-2xl font-extrabold leading-tight text-ink sm:text-[1.9rem]">{champ.name}</div>
-              <div className="mt-1.5 text-[0.88rem] italic text-ink-soft">The office favorite, for now.</div>
+              <div className="mt-3 font-display text-[2.1rem] leading-[1.02] tracking-wide text-ink sm:text-[2.6rem]">{champ.name}</div>
+              <div className="mt-1.5 font-display text-[0.85rem] tracking-wide text-ink-faint">NOTHING ELSE COMES CLOSE</div>
               {champ.neighborhood && (
-                <div className="mt-3 font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] text-ink-faint">{champ.neighborhood}</div>
+                <div className="mt-3 inline-block rounded-full border-2 border-ink bg-paper-100 px-3 py-1 font-display text-[0.68rem] tracking-wide text-ink-soft">
+                  {champ.neighborhood}
+                </div>
               )}
             </div>
             <div className="flex-shrink-0 sm:self-center">
-              <div className="min-w-[136px] rounded-2xl border-2 border-sunny-600/25 bg-sunny-100 px-5 py-4 text-center">
-                <div className="font-display text-[0.62rem] font-bold uppercase tracking-[0.14em] text-ink-faint">Score</div>
-                <div className="mt-1.5 font-mono text-4xl font-bold leading-none text-coral">{fmt(champScore)}</div>
+              <div className="flex h-28 w-28 rotate-[-4deg] flex-col items-center justify-center rounded-full border-[3px] border-ink bg-chili text-center shadow-stamp">
+                <span className="font-display text-[2.1rem] leading-none text-paper-50">{fmt(champScore)}</span>
+                <span className="mt-1 font-display text-[0.6rem] tracking-wide text-paper-100">SCORE</span>
               </div>
             </div>
           </div>
@@ -74,20 +73,20 @@ export default function RankView() {
         + Add a spot you tried &amp; rate it
       </button>
 
-      <div className={`${kickerCls} mt-6 mb-2`}>Refine the list</div>
-      <div className="mb-4 flex flex-col gap-3 rounded-2xl border-2 border-ink/5 bg-white px-4 py-3.5 shadow-card">
+      <div className={`${kickerCls} mt-7 mb-2`}>REFINE THE LIST</div>
+      <div className="mb-4 flex flex-col gap-3 rounded-ticket border-[2.5px] border-ink bg-paper-50 px-4 py-3.5 shadow-stamp-sm">
         <input className={inputCls} placeholder="Search name, neighborhood, notes…" value={search} onChange={(e) => setSearch(e.target.value)} />
         {pendingPairs.length > 0 && (
-          <button className={`${chipCls} !border-coral/60 !text-coral hover:!border-coral`} onClick={() => setDuelOpen(true)}>
+          <button className={`${chipCls} !bg-yolk`} onClick={() => setDuelOpen(true)}>
             <Icon name="swords" size={12} />
             Settle {pendingPairs.length} tie{pendingPairs.length === 1 ? "" : "s"}
           </button>
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-2.5">
+      <div className="mt-4 flex flex-col gap-3">
         {filteredVisited.length === 0 && (
-          <EmptyState icon={<Icon name="search" size={15} />} title="No spots match that search yet." hint="Try a different name or neighborhood" />
+          <EmptyState icon={<Icon name="search" size={17} />} title="No spots match that search yet." hint="Try a different name or neighborhood" />
         )}
         {(() => {
           let rankCounter = 0;

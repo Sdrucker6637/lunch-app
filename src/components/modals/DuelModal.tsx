@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import Icon from "../Icon";
+import Confetti from "../Confetti";
 import { fmt } from "@/lib/scoring";
 import type { DuelPair } from "@/lib/ranking";
 
@@ -13,24 +14,24 @@ interface DuelModalProps {
 }
 
 export default function DuelModal({ pairs, onResolve, onClose }: DuelModalProps) {
-  const [flashName, setFlashName] = useState<string | null>(null);
+  const [winnerId, setWinnerId] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
   const [error, setError] = useState(false);
 
   if (pairs.length === 0) {
     return (
       <Modal onClose={onClose} maxWidth="520px">
-        <div className="flex items-center gap-2 font-display text-[0.7rem] font-bold uppercase tracking-[0.08em] text-coral">
-          <Icon name="swords" size={14} /> Taste-Off
+        <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-yolk px-3 py-1 font-display text-[0.7rem] tracking-[0.08em] text-ink">
+          <Icon name="swords" size={13} /> TASTE-OFF
         </div>
-        <h3 className="mt-3 font-display text-xl font-bold text-ink">All ties settled!</h3>
-        <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-soft">
+        <h3 className="mt-4 font-display text-2xl tracking-wide text-ink">All ties settled!</h3>
+        <p className="mt-2 text-[0.92rem] leading-relaxed text-ink-soft">
           Every tied pair now has a winner, so the ranking order is fully decided.
         </p>
-        <div className="mt-5 flex justify-end">
+        <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full bg-coral px-5 py-2.5 font-display text-[0.82rem] font-semibold text-white shadow-pop transition-all duration-150 hover:bg-coral-600 active:scale-[0.98]"
+            className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full border-[2.5px] border-ink bg-chili px-5 py-2.5 font-display tracking-wide text-paper-50 shadow-stamp-sm transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
           >
             Done
           </button>
@@ -42,81 +43,73 @@ export default function DuelModal({ pairs, onResolve, onClose }: DuelModalProps)
   const pair = pairs[0];
   const multi = pairs.length > 1;
 
-  const choose = async (winnerId: string) => {
+  const choose = async (id: string) => {
     if (resolving) return;
-    const winnerName = winnerId === pair.spot1.id ? pair.spot1.name : pair.spot2.name;
     setResolving(true);
     setError(false);
-    const ok = await onResolve(pair.spot1.id, pair.spot2.id, winnerId);
+    const ok = await onResolve(pair.spot1.id, pair.spot2.id, id);
     setResolving(false);
     if (!ok) {
       setError(true);
       return;
     }
-    setFlashName(winnerName);
-    window.setTimeout(() => setFlashName(null), 950);
+    setWinnerId(id);
+    window.setTimeout(() => setWinnerId(null), 1100);
   };
 
-  const contenderBtn =
-    "group flex w-full cursor-pointer flex-col items-start gap-1 rounded-2xl border-2 border-ink/10 bg-cream-100 px-4 py-4 text-left transition-all duration-150 hover:border-coral hover:bg-coral-50 active:scale-[0.985] disabled:cursor-default disabled:opacity-50";
+  const contenderCard = (spot: typeof pair.spot1, isWinner: boolean, isLoser: boolean) => (
+    <button
+      type="button"
+      disabled={resolving}
+      onClick={() => choose(spot.id)}
+      className={`group relative flex w-full flex-col items-center gap-1.5 rounded-ticket border-[2.5px] border-ink bg-paper-50 px-4 py-6 text-center shadow-stamp transition-all duration-200 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-default ${
+        isWinner ? "scale-105 bg-yolk-100" : isLoser ? "opacity-40 grayscale" : "hover:-translate-y-1 hover:shadow-stamp-lg"
+      }`}
+    >
+      {isWinner && (
+        <span className="absolute -top-5 left-1/2 -translate-x-1/2 rotate-[-8deg] animate-stamp-slam rounded-full border-[3px] border-pickle-600 bg-paper-50 px-3 py-1 font-display text-[0.85rem] tracking-wide text-pickle-600">
+          WINNER
+        </span>
+      )}
+      <span className="font-display text-[1.15rem] leading-snug tracking-wide text-ink group-hover:text-chili">{spot.name}</span>
+      {spot.neighborhood && <span className="font-display text-[0.68rem] tracking-wide text-ink-faint">{spot.neighborhood}</span>}
+      <span className="mt-1 rounded-full border-2 border-ink bg-paper-100 px-2.5 py-0.5 font-mono text-[0.82rem] font-bold text-chili">
+        {fmt(pair.score)}
+      </span>
+      {isWinner && <Confetti />}
+    </button>
+  );
 
   return (
-    <Modal onClose={onClose} maxWidth="520px">
-      <div className="flex items-center gap-2 font-display text-[0.7rem] font-bold uppercase tracking-[0.08em] text-coral">
-        <Icon name="swords" size={14} /> Taste-Off
+    <Modal onClose={onClose} maxWidth="560px">
+      <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-yolk px-3 py-1 font-display text-[0.7rem] tracking-[0.08em] text-ink">
+        <Icon name="swords" size={13} /> TASTE-OFF
       </div>
-      <h3 className="mt-3 font-display text-xl font-bold text-ink">These spots finished with the same score.</h3>
-      <p className="mt-1.5 text-[0.9rem] italic text-ink-soft">
-        Which do you prefer? The winner takes the higher spot — scores stay untouched.
-      </p>
+      <h3 className="mt-4 font-display text-2xl leading-tight tracking-wide text-ink">These spots tied. You decide.</h3>
+      <p className="mt-1.5 text-[0.88rem] italic text-ink-soft">Tap your pick — the winner takes the higher spot. Scores stay untouched.</p>
 
-      {flashName ? (
-        <div className="mt-5 rounded-2xl border-2 border-coral/25 bg-coral-50 px-5 py-6 text-center">
-          <div className="font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] text-coral">
-            🍴 Taste-Off won
-          </div>
-          <div className="mt-2 font-display text-xl font-bold text-ink">{flashName} wins!</div>
-          <div className="mt-1.5 text-[0.75rem] text-ink-faint">settling the next matchup…</div>
+      <div className="relative mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
+        {contenderCard(pair.spot1, winnerId === pair.spot1.id, winnerId === pair.spot2.id)}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 sm:flex">
+          <span className="flex h-12 w-12 rotate-[-8deg] items-center justify-center rounded-full border-[3px] border-ink bg-plum font-display text-[0.9rem] text-paper-50 shadow-stamp-sm">
+            VS
+          </span>
         </div>
-      ) : (
-        <>
-          <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <button type="button" className={contenderBtn} disabled={resolving} onClick={() => choose(pair.spot1.id)}>
-              <span className="font-display text-[1.05rem] font-bold leading-snug text-ink group-hover:text-coral">
-                {pair.spot1.name}
-              </span>
-              {pair.spot1.neighborhood && (
-                <span className="font-display text-[0.68rem] font-semibold uppercase tracking-[0.05em] text-ink-faint">
-                  {pair.spot1.neighborhood}
-                </span>
-              )}
-              <span className="mt-1 font-mono text-[0.75rem] text-coral">{fmt(pair.score)}</span>
-            </button>
-            <button type="button" className={contenderBtn} disabled={resolving} onClick={() => choose(pair.spot2.id)}>
-              <span className="font-display text-[1.05rem] font-bold leading-snug text-ink group-hover:text-coral">
-                {pair.spot2.name}
-              </span>
-              {pair.spot2.neighborhood && (
-                <span className="font-display text-[0.68rem] font-semibold uppercase tracking-[0.05em] text-ink-faint">
-                  {pair.spot2.neighborhood}
-                </span>
-              )}
-              <span className="mt-1 font-mono text-[0.75rem] text-coral">{fmt(pair.score)}</span>
-            </button>
-          </div>
-          {multi && (
-            <p className="mt-3 text-[0.72rem] text-ink-faint">
-              {pairs.length} matchup{pairs.length === 1 ? "" : "s"} left to settle this tie.
-            </p>
-          )}
-          {error && <p className="mt-3 text-[0.75rem] text-berry">Couldn&apos;t save that pick — check your connection and try again.</p>}
-        </>
-      )}
+        <div className="pointer-events-none flex justify-center sm:hidden">
+          <span className="flex h-10 w-10 rotate-[-8deg] items-center justify-center rounded-full border-[3px] border-ink bg-plum font-display text-[0.8rem] text-paper-50 shadow-stamp-sm">
+            VS
+          </span>
+        </div>
+        {contenderCard(pair.spot2, winnerId === pair.spot2.id, winnerId === pair.spot1.id)}
+      </div>
 
-      <div className="mt-5 flex justify-end">
+      {multi && <p className="mt-5 text-center font-display text-[0.72rem] tracking-wide text-ink-faint">{pairs.length} MATCHUP{pairs.length === 1 ? "" : "S"} LEFT</p>}
+      {error && <p className="mt-3 text-center text-[0.78rem] text-chili-600">Couldn&apos;t save that pick — check your connection and try again.</p>}
+
+      <div className="mt-6 flex justify-center">
         <button
           onClick={onClose}
-          className="cursor-pointer border-none bg-transparent p-1 font-display text-[0.75rem] font-semibold text-ink-faint transition-colors hover:text-coral"
+          className="cursor-pointer border-none bg-transparent p-1 font-display text-[0.78rem] tracking-wide text-ink-faint transition-colors hover:text-chili"
         >
           Skip for now
         </button>

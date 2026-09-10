@@ -137,6 +137,19 @@ const GLYPHS: Record<string, ReactNode> = {
       <line x1="17.5" y1="6.5" x2="19.6" y2="4.4" />
     </>
   ),
+  // flame (hot pick / streak)
+  flame: (
+    <path d="M12 2c1 3-3 4-3 7.5A3.5 3.5 0 0 0 12 13a3.5 3.5 0 0 0 3.5-3.5c1.5 1 2.5 3 2.5 5A6 6 0 0 1 6 14.5C6 9 12 8 12 2z" />
+  ),
+  // ticket / stamp (rank, empty states)
+  ticket: (
+    <>
+      <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8z" />
+      <line x1="10" y1="7" x2="10" y2="17" strokeDasharray="2 2" />
+    </>
+  ),
+  // starburst (champion placard accent)
+  star: <path d="M12 2l2.4 6.8L21 11l-6.6 2.2L12 22l-2.4-8.8L3 11l6.6-2.2z" />,
 };
 
 export type IconName = keyof typeof GLYPHS;
@@ -144,17 +157,20 @@ export type IconName = keyof typeof GLYPHS;
 interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
   name: IconName;
   size?: number;
+  /** Fill the glyph solid instead of stroking it (a few glyphs — star,
+   *  flame — read better filled for emphasis states). */
+  filled?: boolean;
 }
 
-export default function Icon({ name, size = 14, ...rest }: IconProps) {
+export default function Icon({ name, size = 14, filled = false, ...rest }: IconProps) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={2.2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
