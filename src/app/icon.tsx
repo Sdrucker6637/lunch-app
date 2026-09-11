@@ -17,9 +17,11 @@ export default function Icon() {
           background: "#FF4321",
         }}
       >
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FBF2DD" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8z" />
-          <line x1="10" y1="7" x2="10" y2="17" strokeDasharray="2 2" />
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FBF2DD" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 2v9" />
+          <path d="M4 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2" />
+          <path d="M6 11v11" />
+          <path d="M17 2c-2 0-3 3-3 6 0 2 1 3 3 3v11" />
         </svg>
       </div>
     ),

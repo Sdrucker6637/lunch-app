@@ -94,8 +94,9 @@ const GLYPHS: Record<string, ReactNode> = {
       <line x1="9" y1="16" x2="13" y2="16" />
     </>
   ),
-  // fork + knife (food)
-  food: (
+  // fork + knife — the app's primary brand mark (header badge, favicon,
+  // home-screen icon) as well as a general "food" glyph
+  utensils: (
     <>
       <path d="M6 2v9" />
       <path d="M4 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2" />

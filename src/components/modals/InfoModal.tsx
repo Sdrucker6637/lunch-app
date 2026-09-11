@@ -13,7 +13,7 @@ export default function InfoModal() {
   return (
     <Modal onClose={() => setShowInfo(false)}>
       <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-yolk px-3 py-1 font-display text-[0.68rem] tracking-[0.08em] text-ink">
-        <Icon name="ticket" size={12} /> HOW IT WORKS
+        <Icon name="utensils" size={12} /> HOW IT WORKS
       </div>
       <h3 className="mt-3 font-display text-xl tracking-wide text-ink">The Lunch Club, decoded</h3>
       <div className="mt-2.5 text-[0.92rem] leading-[1.55] text-ink-soft">

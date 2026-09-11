@@ -27,7 +27,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen items-center justify-center bg-paper px-6 text-center">
         <div className="max-w-md rounded-ticket border-[3px] border-ink bg-paper-50 p-8 shadow-stamp-lg">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-ink bg-yolk text-ink">
-            <Icon name="ticket" size={26} />
+            <Icon name="utensils" size={26} />
           </div>
           <h1 className="font-display text-2xl tracking-wide text-ink">The Lunch Club needs setup</h1>
           <p className="mt-3 text-sm text-ink-soft">
@@ -52,19 +52,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             className="lr-sunburst pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full opacity-60"
           />
           <div className="relative">
-            <h1 className="m-0 flex items-center justify-center gap-2.5">
-              <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-chili text-paper-50 shadow-stamp-sm sm:h-12 sm:w-12">
-                <Icon name="ticket" size={22} />
+            <h1 className="m-0 flex items-center justify-center gap-3">
+              <span className="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-chili text-paper-50 shadow-stamp-sm">
+                <Icon name="utensils" size={26} />
               </span>
-              <span className="font-display text-[1.7rem] leading-none tracking-wide text-ink sm:text-[2.5rem]">
-                THE LUNCH <span className="text-chili">CLUB</span>
+              <span className="flex flex-col items-center">
+                <span className="font-display text-[1.5rem] leading-[0.95] tracking-wide text-ink sm:text-[2.1rem]">THE LUNCH</span>
+                <span className="font-display text-[2.7rem] leading-[0.95] tracking-wide text-chili sm:text-[3.8rem]">CLUB</span>
               </span>
               <button
                 type="button"
                 title="How The Lunch Club works"
                 aria-label="How The Lunch Club works"
                 onClick={() => setShowInfo(true)}
-                className="lr-focus ml-0.5 inline-flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center self-start rounded-full border-2 border-ink bg-paper-50 font-display text-[0.75rem] text-ink transition-transform hover:-translate-y-0.5"
+                className="lr-focus ml-0.5 inline-flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center self-center rounded-full border-2 border-ink bg-paper-50 font-display text-[0.75rem] text-ink transition-transform hover:-translate-y-0.5"
               >
                 i
               </button>
