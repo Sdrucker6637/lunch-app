@@ -62,16 +62,34 @@ export async function fetchExploreSuggestions(
   return results.filter((r) => !excludeNames.includes(r.name)).slice(0, 4);
 }
 
-export async function fetchSurpriseSpots(excludeNames: string[], count = 4): Promise<PlaceResult[]> {
-  const vibe = SURPRISE_VIBES[Math.floor(Math.random() * SURPRISE_VIBES.length)];
-  const results = await fetchRestaurants(vibe, { limit: 10, noCache: true });
-  const fresh = results.filter((r) => !excludeNames.includes(r.name));
-  // Fisher-Yates shuffle, then take the first `count` — a random subset
-  // rather than always the same top-N Google returned for this vibe.
-  const shuffled = [...fresh];
-  for (let i = shuffled.length - 1; i > 0; i--) {
+function shuffle<T>(arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    [out[i], out[j]] = [out[j], out[i]];
   }
-  return shuffled.slice(0, count);
+  return out;
+}
+
+/** One result per craving, not `count` results of ONE craving — a single
+ *  vibe search (e.g. "pizza") only ever returns pizza places, so picking
+ *  `count` distinct vibes and taking one winner from each is what actually
+ *  makes a Surprise Me batch varied instead of four versions of the same
+ *  cuisine. Fetches run in parallel for speed; final list is deduped by
+ *  name in case two different vibe searches happen to surface the same
+ *  restaurant. */
+export async function fetchSurpriseSpots(excludeNames: string[], count = 4): Promise<PlaceResult[]> {
+  const vibes = shuffle(SURPRISE_VIBES).slice(0, count);
+  const resultLists = await Promise.all(vibes.map((vibe) => fetchRestaurants(vibe, { limit: 10, noCache: true })));
+
+  const picks: PlaceResult[] = [];
+  const seen = new Set(excludeNames);
+  for (const results of resultLists) {
+    const fresh = shuffle(results.filter((r) => !seen.has(r.name)));
+    const pick = fresh[0];
+    if (!pick) continue;
+    picks.push(pick);
+    seen.add(pick.name);
+  }
+  return picks;
 }

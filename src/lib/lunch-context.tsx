@@ -356,6 +356,7 @@ export function LunchProvider({ children }: { children: ReactNode }) {
   const runExplore = useCallback(async () => {
     setSearching(true);
     setSearchDone(false);
+    setSearchResults([]); // clear stale cards immediately, don't wait on the fetch
     try {
       const results = await fetchExploreSuggestions(exploreQuery, excludedNames());
       results.forEach((r) => seenNames.current.add(r.name));
@@ -370,6 +371,7 @@ export function LunchProvider({ children }: { children: ReactNode }) {
   const runSurprise = useCallback(async () => {
     setSearching(true);
     setSearchDone(false);
+    setSearchResults([]); // clear stale cards immediately, don't wait on the fetch
     try {
       const results = await fetchSurpriseSpots(excludedNames());
       results.forEach((r) => seenNames.current.add(r.name));
