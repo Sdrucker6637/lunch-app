@@ -64,6 +64,13 @@ body {
   overflow: hidden;
   border: 3px solid #201a14;
   box-shadow: 5px 5px 0 0 #201a14;
+  /* Leaflet's own controls (zoom buttons especially) use z-index up to
+     ~1000 internally. Without isolating them into their own stacking
+     context here, those values compete directly with page-level fixed
+     elements (like the mobile bottom nav) instead of staying contained to
+     the map box — this is what let the map render on top of the bottom
+     tab bar while scrolled to it. */
+  isolation: isolate;
 }
 
 @keyframes lr-pop-in {
