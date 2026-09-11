@@ -1,18 +1,28 @@
-// Real walking-route times from the office, via the Google Routes API
-// (computeRouteMatrix, travelMode WALK). This is the source of truth for the
-// 20-minute cutoff — NOT the straight-line haversine estimate, which is only
-// used as a cheap pre-filter before we spend a Routes API call.
+// Real walking-route times from the office, via OpenRouteService's Matrix
+// API (foot-walking profile). This is the source of truth for the
+// 20-minute cutoff — NOT the straight-line haversine estimate, which is
+// only used as a cheap pre-filter before spending an ORS request.
+//
+// Chosen over Google's Routes API specifically to guarantee this app can
+// never generate a Google Cloud bill for walk-time lookups: ORS's free tier
+// (2,000 requests/day, no credit card, signup at openrouteservice.org) has
+// no paid tier escalation risk the way a billing-account-linked Google API
+// does. Google's public OSRM demo server was considered and rejected — it
+// only serves driving routes, not walking, so it can't back this feature at
+// all, paid or free.
 //
 // Walk times between the office and a given place are effectively static
 // (the same two points on the same street network), so results are cached
 // in Firestore keyed by placeId with a long TTL — after the first lookup,
-// a given restaurant's walk time is essentially free.
+// a given restaurant's walk time is essentially free of ORS quota too.
 
-const ROUTES_ENDPOINT =
-  "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
+const ORS_MATRIX_ENDPOINT = "https://api.openrouteservice.org/v2/matrix/foot-walking";
 const WALK_CACHE_COLLECTION = "walkTimeCache";
 const WALK_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — geography doesn't move
-const MAX_DESTINATIONS_PER_CALL = 25;
+// ORS's free tier caps a single matrix request at 50 locations and 3,500
+// source*destination routes. With exactly one source (the office), 49
+// destinations per batch stays comfortably under both limits.
+const MAX_DESTINATIONS_PER_CALL = 45;
 
 export interface WalkTimeResult {
   minutes: number;
@@ -75,13 +85,7 @@ async function writeWalkCache(
   }
 }
 
-function parseDurationSeconds(duration: string | undefined): number | null {
-  if (!duration) return null;
-  const m = /^(\d+(?:\.\d+)?)s$/.exec(duration);
-  return m ? Number(m[1]) : null;
-}
-
-async function computeRouteMatrixBatch(
+async function computeMatrixBatch(
   origin: { latitude: number; longitude: number },
   destinations: Destination[],
   apiKey: string,
@@ -89,66 +93,57 @@ async function computeRouteMatrixBatch(
   const out = new Map<string, WalkTimeResult>();
   if (destinations.length === 0) return out;
 
-  const body = {
-    origins: [
-      {
-        waypoint: {
-          location: {
-            latLng: { latitude: origin.latitude, longitude: origin.longitude },
-          },
-        },
-      },
-    ],
-    destinations: destinations.map((d) => ({
-      waypoint: {
-        location: { latLng: { latitude: d.latitude, longitude: d.longitude } },
-      },
-    })),
-    travelMode: "WALK",
-  };
+  // ORS wants [lon, lat] locations, source/destination as indices into that
+  // shared array. Index 0 is always the office (the one source).
+  const locations = [
+    [origin.longitude, origin.latitude],
+    ...destinations.map((d) => [d.longitude, d.latitude]),
+  ];
+  const destinationIndices = destinations.map((_, i) => i + 1);
 
-  const res = await fetch(ROUTES_ENDPOINT, {
+  const res = await fetch(ORS_MATRIX_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "originIndex,destinationIndex,duration,distanceMeters,condition",
+      Authorization: apiKey,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      locations,
+      sources: [0],
+      destinations: destinationIndices,
+      metrics: ["duration", "distance"],
+      units: "m",
+    }),
   });
 
   if (!res.ok) {
-    console.error("routes: computeRouteMatrix failed", res.status, await res.text());
+    console.error("routes: ORS matrix request failed", res.status, await res.text());
     return out;
   }
 
-  const elements = (await res.json()) as Array<{
-    originIndex?: number;
-    destinationIndex?: number;
-    duration?: string;
-    distanceMeters?: number;
-    condition?: string;
-  }>;
+  const data = (await res.json()) as {
+    durations?: Array<Array<number | null>>;
+    distances?: Array<Array<number | null>>;
+  };
+  const durations = data.durations?.[0] || [];
+  const distances = data.distances?.[0] || [];
 
-  for (const el of elements) {
-    if (el.condition && el.condition !== "ROUTE_EXISTS") continue;
-    const idx = el.destinationIndex ?? 0;
-    const dest = destinations[idx];
-    if (!dest) continue;
-    const seconds = parseDurationSeconds(el.duration);
-    if (seconds === null || typeof el.distanceMeters !== "number") continue;
-    out.set(dest.placeId, { minutes: seconds / 60, meters: el.distanceMeters });
-  }
+  destinations.forEach((dest, i) => {
+    const seconds = durations[i];
+    const meters = distances[i];
+    if (typeof seconds !== "number" || typeof meters !== "number") return;
+    out.set(dest.placeId, { minutes: seconds / 60, meters });
+  });
+
   return out;
 }
 
 /**
  * Resolve real walking time + distance from the office to each destination.
  * Cached results (Firestore, 30-day TTL, keyed by placeId) are reused;
- * everything else is batched into Routes API calls (<=25 destinations per
- * request, per Google's limit). Destinations without a placeId are skipped —
- * there's nothing stable to cache them by, and the caller (routes normally
- * only calls this with real Places results) should not hit that path.
+ * everything else is batched into OpenRouteService matrix requests (<=45
+ * destinations per request). Destinations without a placeId are skipped —
+ * there's nothing stable to cache them by.
  */
 export async function getWalkTimes(
   origin: { latitude: number; longitude: number },
@@ -173,7 +168,7 @@ export async function getWalkTimes(
 
   for (let i = 0; i < uncached.length; i += MAX_DESTINATIONS_PER_CALL) {
     const batch = uncached.slice(i, i + MAX_DESTINATIONS_PER_CALL);
-    const batchResult = await computeRouteMatrixBatch(origin, batch, apiKey);
+    const batchResult = await computeMatrixBatch(origin, batch, apiKey);
     for (const [placeId, walk] of batchResult) {
       result.set(placeId, walk);
       if (projectId) await writeWalkCache(projectId, placeId, walk);

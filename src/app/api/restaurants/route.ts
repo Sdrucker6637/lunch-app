@@ -8,14 +8,19 @@ import { LUNCH_TYPES, MAX_WALK_MINUTES, SEARCH_RADIUS_METERS } from "@/lib/const
 // manual add/lookup. Adapted from the bar app's /api/places route: same
 // Firestore-backed 24h search cache, same exact-match ranking for manual
 // adds, but location bias is always the office (not user-supplied), and
-// every result is checked against the real Google-Routes walking time and
-// tagged with walkMinutes/walkMeters so the client can enforce (or, for
-// manual adds, warn about) the 20-minute cutoff.
+// every result is checked against a real walking-route time (OpenRouteService,
+// not Google Routes — see src/lib/routes.ts) and tagged with
+// walkMinutes/walkMeters so the client can enforce (or, for manual adds,
+// warn about) the 20-minute cutoff.
 //
 // Required env vars (Vercel Project Settings -> Environment Variables):
-//   GOOGLE_MAPS_API_KEY   (Places API (New) + Routes API + Geocoding API,
-//                          all enabled on the same key/project)
-//   FIREBASE_PROJECT_ID   (for the shared Places + walk-time caches)
+//   GOOGLE_MAPS_API_KEY       (Places API (New) only — Routes/Geocoding are
+//                              deliberately NOT used, see src/lib/routes.ts
+//                              and src/lib/office.ts, so this app never
+//                              needs more than Places billing-enabled)
+//   OPENROUTESERVICE_API_KEY (free tier, api.openrouteservice.org — walking
+//                              route times)
+//   FIREBASE_PROJECT_ID       (for the shared Places + walk-time caches)
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const CACHE_COLLECTION = "placesSearchCache";
@@ -372,7 +377,7 @@ async function runExactLookup(ctx: LookupContext): Promise<ShapedPlace[]> {
  *  caller decides whether to filter (discovery) or just warn (manual add). */
 async function withWalkTimes(
   places: ShapedPlace[],
-  apiKey: string,
+  orsApiKey: string,
   projectId: string | undefined,
 ): Promise<(ShapedPlace & { walkMinutes: number | null; walkMeters: number | null })[]> {
   const office = await getOfficeLocation();
@@ -383,7 +388,7 @@ async function withWalkTimes(
   const walkTimes = await getWalkTimes(
     { latitude: office.latitude, longitude: office.longitude },
     withCoords.map((p) => ({ placeId: p.placeId, latitude: p.latitude, longitude: p.longitude })),
-    apiKey,
+    orsApiKey,
     projectId,
   );
   return places.map((p) => {
@@ -400,6 +405,10 @@ export async function POST(req: Request) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "Server is missing GOOGLE_MAPS_API_KEY" }, { status: 500 });
+  }
+  const orsApiKey = process.env.OPENROUTESERVICE_API_KEY;
+  if (!orsApiKey) {
+    return NextResponse.json({ error: "Server is missing OPENROUTESERVICE_API_KEY" }, { status: 500 });
   }
   const projectId = process.env.FIREBASE_PROJECT_ID;
 
@@ -435,7 +444,7 @@ export async function POST(req: Request) {
   try {
     if (exactLookup) {
       const shaped = await runExactLookup(ctx);
-      const withWalk = await withWalkTimes(shaped, apiKey, projectId);
+      const withWalk = await withWalkTimes(shaped, orsApiKey, projectId);
       return NextResponse.json(withWalk);
     }
 
@@ -443,7 +452,7 @@ export async function POST(req: Request) {
     const cacheDocId = projectId ? cacheKeyFor(textQuery) : null;
     const { rawPlaces } = await fetchOrCachePlaces(textQuery, ctx, cacheDocId);
     const shaped = filterAndShape(rawPlaces, ctx);
-    const withWalk = await withWalkTimes(shaped, apiKey, projectId);
+    const withWalk = await withWalkTimes(shaped, orsApiKey, projectId);
     // Discovery is a hard filter: only spots genuinely within the walk
     // budget are ever surfaced. A missing walk time (Routes API failure)
     // is treated as "unknown, don't show" rather than silently including

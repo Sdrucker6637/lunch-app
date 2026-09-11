@@ -82,7 +82,7 @@ export const MAX_WALK_MINUTES = 20;
  *  Walking routes are rarely more than ~1.4x the straight-line distance in
  *  a street grid, and MAX_WALK_MINUTES at an average pace covers roughly
  *  1,600m beeline — padded up for detours, then the real walking time from
- *  the Routes API does the precise filtering. */
+ *  OpenRouteService does the precise filtering. */
 export const SEARCH_RADIUS_METERS = 2200;
 
 export const WALK_SPEED_MPS = 1.34; // ~4.8 km/h average walking pace, beeline-estimate fallback only

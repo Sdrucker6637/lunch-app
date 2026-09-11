@@ -6,11 +6,15 @@ import { DEFAULT_OFFICE, OFFICE_CONFIG_DOC } from "./constants";
 //   1. OFFICE_LAT + OFFICE_LNG env vars, if both set — fastest, no network
 //      call, recommended for production once you know the exact coordinates.
 //   2. Geocode OFFICE_ADDRESS (or the default "10 Hudson Yards, New York, NY")
-//      via the Google Geocoding API, then cache the result in Firestore
-//      (config/office) so future cold starts skip the geocode call too.
-//   3. DEFAULT_OFFICE constant, if neither of the above is available (no API
-//      key configured yet) — keeps local dev/build working before secrets
-//      are set up, at the cost of using an approximate coordinate.
+//      via OpenStreetMap's free Nominatim geocoder, then cache the result in
+//      Firestore (config/office) so future cold starts skip the geocode call
+//      too — this only ever runs once, since the cache is permanent. Uses
+//      Nominatim rather than Google's Geocoding API deliberately: this app
+//      is built to never require a Google Cloud billing account at all, and
+//      a one-time free lookup is plenty for something that's cached forever.
+//   3. DEFAULT_OFFICE constant, if neither of the above is available — keeps
+//      local dev/build working before OFFICE_ADDRESS is set, at the cost of
+//      using an approximate coordinate.
 
 export interface OfficeLocation {
   address: string;
@@ -91,15 +95,18 @@ async function writeFirestoreCache(
 
 async function geocodeAddress(
   address: string,
-  apiKey: string,
 ): Promise<{ latitude: number; longitude: number } | null> {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-  const res = await fetch(url);
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+  // Nominatim's usage policy requires a descriptive User-Agent identifying
+  // the application (no API key exists to identify requests instead).
+  const res = await fetch(url, { headers: { "User-Agent": "lunch-radius-app (office geocode, one-time)" } });
   if (!res.ok) return null;
-  const data = await res.json();
-  const loc = data?.results?.[0]?.geometry?.location;
-  if (loc && Number.isFinite(loc.lat) && Number.isFinite(loc.lng)) {
-    return { latitude: loc.lat, longitude: loc.lng };
+  const data = (await res.json()) as Array<{ lat?: string; lon?: string }>;
+  const first = data?.[0];
+  const lat = Number(first?.lat);
+  const lon = Number(first?.lon);
+  if (Number.isFinite(lat) && Number.isFinite(lon)) {
+    return { latitude: lat, longitude: lon };
   }
   return null;
 }
@@ -125,19 +132,16 @@ export async function getOfficeLocation(): Promise<OfficeLocation> {
     }
 
     const address = process.env.OFFICE_ADDRESS || DEFAULT_OFFICE.address;
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (apiKey) {
-      try {
-        const geo = await geocodeAddress(address, apiKey);
-        if (geo) {
-          const office: OfficeLocation = { address, ...geo, source: "geocode" };
-          cached = office;
-          if (projectId) await writeFirestoreCache(projectId, office);
-          return office;
-        }
-      } catch (e) {
-        console.error("office: geocode failed", e);
+    try {
+      const geo = await geocodeAddress(address);
+      if (geo) {
+        const office: OfficeLocation = { address, ...geo, source: "geocode" };
+        cached = office;
+        if (projectId) await writeFirestoreCache(projectId, office);
+        return office;
       }
+    } catch (e) {
+      console.error("office: geocode failed", e);
     }
 
     const fallback: OfficeLocation = { ...DEFAULT_OFFICE, source: "default" };
