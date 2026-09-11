@@ -1,4 +1,4 @@
-# Lunch Radius
+# The Lunch Club
 
 Find lunch, not more than a 20-minute walk from the office. A shared,
 no-login ranking app for a team: explore real restaurants near the office,
@@ -17,7 +17,7 @@ walking-route filtering instead of a fixed city-wide search radius.
 
 ## What's different from the bar app
 
-| | Bar app | Lunch Radius |
+| | Bar app | The Lunch Club |
 |---|---|---|
 | Scoring categories | Vibe, Value, Service, Food, **Drinks** | Vibe, Value, Service, Food, **Distance** (auto-computed, not rated) |
 | Search anchor | Fixed NYC-wide center | Your office's exact coordinates |

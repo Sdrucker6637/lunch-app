@@ -99,7 +99,7 @@ async function geocodeAddress(
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
   // Nominatim's usage policy requires a descriptive User-Agent identifying
   // the application (no API key exists to identify requests instead).
-  const res = await fetch(url, { headers: { "User-Agent": "lunch-radius-app (office geocode, one-time)" } });
+  const res = await fetch(url, { headers: { "User-Agent": "the-lunch-club-app (office geocode, one-time)" } });
   if (!res.ok) return null;
   const data = (await res.json()) as Array<{ lat?: string; lon?: string }>;
   const first = data?.[0];

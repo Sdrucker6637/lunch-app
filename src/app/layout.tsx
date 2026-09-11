@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Anton, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { LunchProvider } from "@/lib/lunch-context";
 import Shell from "@/components/Shell";
@@ -26,8 +26,20 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Lunch Radius",
+  title: "The Lunch Club",
   description: "Great lunch. Never more than a 20-minute walk from the office.",
+  appleWebApp: {
+    title: "The Lunch Club",
+    capable: true,
+    statusBarStyle: "default",
+  },
+};
+
+// Tints Safari's chrome (and the status bar when saved to the home screen)
+// to match the brand — Next 14 moved this out of `metadata` into its own
+// `viewport` export.
+export const viewport: Viewport = {
+  themeColor: "#FF4321",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

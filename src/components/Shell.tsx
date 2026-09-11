@@ -29,7 +29,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-ink bg-yolk text-ink">
             <Icon name="ticket" size={26} />
           </div>
-          <h1 className="font-display text-2xl tracking-wide text-ink">Lunch Radius needs setup</h1>
+          <h1 className="font-display text-2xl tracking-wide text-ink">The Lunch Club needs setup</h1>
           <p className="mt-3 text-sm text-ink-soft">
             Firebase isn&apos;t configured yet. Add your <code>NEXT_PUBLIC_FIREBASE_*</code> env vars
             (see the README) to <code>.env.local</code> and restart the dev server.
@@ -56,13 +56,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-chili text-paper-50 shadow-stamp-sm sm:h-12 sm:w-12">
                 <Icon name="ticket" size={22} />
               </span>
-              <span className="font-display text-[2.1rem] leading-none tracking-wide text-ink sm:text-[2.6rem]">
-                LUNCH <span className="text-chili">RADIUS</span>
+              <span className="font-display text-[1.7rem] leading-none tracking-wide text-ink sm:text-[2.5rem]">
+                THE LUNCH <span className="text-chili">CLUB</span>
               </span>
               <button
                 type="button"
-                title="How Lunch Radius works"
-                aria-label="How Lunch Radius works"
+                title="How The Lunch Club works"
+                aria-label="How The Lunch Club works"
                 onClick={() => setShowInfo(true)}
                 className="lr-focus ml-0.5 inline-flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center self-start rounded-full border-2 border-ink bg-paper-50 font-display text-[0.75rem] text-ink transition-transform hover:-translate-y-0.5"
               >

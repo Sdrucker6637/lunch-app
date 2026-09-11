@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// "Lunch Radius" design system v2 — "deli counter meets scoreboard".
+// "The Lunch Club" design system v2 — "deli counter meets scoreboard".
 // Bold black outlines + hard offset shadows (stamped/tactile, not flat
 // SaaS-soft), a poster-display font for scores/headlines, warm paper stock
 // instead of pastel-on-cream. Every surface should feel printed, punched,
