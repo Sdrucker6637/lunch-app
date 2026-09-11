@@ -88,7 +88,11 @@ export const SEARCH_RADIUS_METERS = 2200;
 export const WALK_SPEED_MPS = 1.34; // ~4.8 km/h average walking pace, beeline-estimate fallback only
 export const WALK_DETOUR_FACTOR = 1.3; // streets aren't straight lines, beeline-estimate fallback only
 
-/** Food-relevant Google Places (New) types accepted for discovery results. */
+/** Food-relevant Google Places (New) types accepted for discovery results.
+ *  Deliberately skews quick-service/takeout: "restaurant" stays in because
+ *  many genuinely casual/fast-casual spots have no more specific Google
+ *  type to fall back on, but see EXCLUDED_TYPES below for the explicit
+ *  upscale-dining carve-out. */
 export const LUNCH_TYPES = [
   "restaurant",
   "cafe",
@@ -97,7 +101,16 @@ export const LUNCH_TYPES = [
   "fast_food_restaurant",
   "meal_takeaway",
   "coffee_shop",
+  "deli",
+  "diner",
+  "food_court",
+  "pizza_restaurant",
 ];
+
+/** Explicitly excluded even though they'd otherwise pass LUNCH_TYPES (e.g.
+ *  a "fine_dining_restaurant" is still typed "restaurant" too) — this app
+ *  is for a quick office lunch, not a sit-down occasion. */
+export const EXCLUDED_LUNCH_TYPES = ["fine_dining_restaurant", "steak_house"];
 
 // Deli-ticket gradient for the map — chili red (lower score) through egg-yolk
 // gold to pickle green (top score). Matches the "stamped ticket" palette.

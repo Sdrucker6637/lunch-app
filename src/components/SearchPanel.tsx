@@ -30,7 +30,7 @@ export default function SearchPanel() {
           <button className={altBtnCls} onClick={runSurprise} disabled={searching}>
             <Icon name="dice" size={15} /> Surprise Me
           </button>
-          <span className="text-center font-display text-[0.72rem] tracking-wide text-ink-faint">Let fate pick lunch.</span>
+          <span className="text-center font-display text-[0.72rem] tracking-wide text-ink-faint">Let fate pick a few options.</span>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ import { avgScore } from "./scoring";
 import { pendingDuelPairs } from "./ranking";
 import { callGemini } from "./gemini";
 import { buildEnrichmentPrompt, DETAIL_FETCH_CONCURRENCY, isSearchEnrichmentOk, needsEnrichment } from "./enrichment";
-import { fetchRestaurants, fetchExploreSuggestions, fetchSurpriseSpot } from "./places";
+import { fetchRestaurants, fetchExploreSuggestions, fetchSurpriseSpots } from "./places";
 import type { PlaceResult, RankingDuel, Spot, VisitedForm, WishForm } from "./types";
 
 const newSpotId = () => `s${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -371,15 +371,11 @@ export function LunchProvider({ children }: { children: ReactNode }) {
     setSearching(true);
     setSearchDone(false);
     try {
-      const result = await fetchSurpriseSpot(excludedNames());
-      if (result) {
-        seenNames.current.add(result.name);
-        const tagged: PlaceResult = { ...result, _origin: "surprise" };
-        setSearchResults([tagged]);
-        enrichResult(tagged);
-      } else {
-        setSearchResults([]);
-      }
+      const results = await fetchSurpriseSpots(excludedNames());
+      results.forEach((r) => seenNames.current.add(r.name));
+      const tagged: PlaceResult[] = results.map((r) => ({ ...r, _origin: "surprise" }));
+      setSearchResults(tagged);
+      tagged.forEach((r) => enrichResult(r));
     } finally {
       setSearching(false);
       setSearchDone(true);

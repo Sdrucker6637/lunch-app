@@ -62,10 +62,16 @@ export async function fetchExploreSuggestions(
   return results.filter((r) => !excludeNames.includes(r.name)).slice(0, 4);
 }
 
-export async function fetchSurpriseSpot(excludeNames: string[]): Promise<PlaceResult | null> {
+export async function fetchSurpriseSpots(excludeNames: string[], count = 4): Promise<PlaceResult[]> {
   const vibe = SURPRISE_VIBES[Math.floor(Math.random() * SURPRISE_VIBES.length)];
   const results = await fetchRestaurants(vibe, { limit: 10, noCache: true });
   const fresh = results.filter((r) => !excludeNames.includes(r.name));
-  if (fresh.length === 0) return null;
-  return fresh[Math.floor(Math.random() * fresh.length)];
+  // Fisher-Yates shuffle, then take the first `count` — a random subset
+  // rather than always the same top-N Google returned for this vibe.
+  const shuffled = [...fresh];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
 }

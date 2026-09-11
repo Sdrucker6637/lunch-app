@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOfficeLocation } from "@/lib/office";
 import { getWalkTimes } from "@/lib/routes";
-import { LUNCH_TYPES, MAX_WALK_MINUTES, SEARCH_RADIUS_METERS } from "@/lib/constants";
+import { EXCLUDED_LUNCH_TYPES, LUNCH_TYPES, MAX_WALK_MINUTES, SEARCH_RADIUS_METERS } from "@/lib/constants";
 
 // Vercel serverless function (Node.js runtime). Single source of truth for
 // "find lunch spots near the office" — used by Explore, Surprise Me, and
@@ -272,6 +272,7 @@ function filterAndShape(rawPlaces: RawPlace[], ctx: LookupContext): ShapedPlace[
     list = rawPlaces
       .filter((p) => p.businessStatus === "OPERATIONAL")
       .filter((p) => (p.types || []).some((t) => LUNCH_TYPES.includes(t)))
+      .filter((p) => !(p.types || []).some((t) => EXCLUDED_LUNCH_TYPES.includes(t)))
       .filter((p) => {
         const rank = PRICE_LEVEL_RANK[p.priceLevel || ""];
         return rank === undefined || rank <= 2; // keep it to reasonable lunch prices
@@ -296,7 +297,14 @@ async function queryGooglePlaces(textQuery: string, ctx: LookupContext): Promise
     maxResultCount: ctx.maxResultCount,
     locationBias: { circle: { center: ctx.center, radius: ctx.radius } },
   };
-  if (!ctx.exactLookup) requestBody.includedType = "restaurant";
+  // Deliberately NOT setting includedType for normal discovery: Places Text
+  // Search (New) treats it as a hard filter against a single exact type, so
+  // pinning it to "restaurant" was silently excluding every cafe, bakery,
+  // sandwich shop, and coffee shop from Google's results before our own
+  // LUNCH_TYPES allow-list downstream ever got a chance to see them — the
+  // opposite of what a quick-service-leaning app wants. Breadth comes from
+  // the unfiltered text search; LUNCH_TYPES/EXCLUDED_LUNCH_TYPES below do
+  // the actual category curation.
 
   const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
     method: "POST",
@@ -448,7 +456,11 @@ export async function POST(req: Request) {
       return NextResponse.json(withWalk);
     }
 
-    const textQuery = [query, "near", office.address].filter(Boolean).join(" ") + " restaurant";
+    // "quick service" (not "restaurant") biases Google's text relevance
+    // ranking toward fast-casual/takeout results over sit-down dining —
+    // the actual category curation happens in filterAndShape via
+    // LUNCH_TYPES/EXCLUDED_LUNCH_TYPES, this is just a ranking nudge.
+    const textQuery = [query, "quick service", "near", office.address].filter(Boolean).join(" ");
     const cacheDocId = projectId ? cacheKeyFor(textQuery) : null;
     const { rawPlaces } = await fetchOrCachePlaces(textQuery, ctx, cacheDocId);
     const shaped = filterAndShape(rawPlaces, ctx);
