@@ -4,7 +4,7 @@ export default function LoadingScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-paper text-ink">
       <div className="relative flex h-20 w-20 animate-float items-center justify-center rounded-full border-[3px] border-ink bg-chili text-paper-50 shadow-stamp-lg">
-        <Icon name="utensils" size={34} />
+        <Icon name="logo" size={34} />
       </div>
       <div className="flex flex-col items-center gap-1">
         <div className="font-display text-lg tracking-wide text-ink">SETTING THE TABLE…</div>

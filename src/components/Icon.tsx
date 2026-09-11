@@ -7,6 +7,14 @@ import type { ReactNode, SVGProps } from "react";
  * currentColor). No icon library, no emoji.
  */
 
+// Brand mark: a pin with a bite taken out of its edge. The bite is cut via
+// fill-rule="evenodd" (not a matched-color overlay), so it reads as a true
+// hole showing whatever sits behind the icon — same mark works unmodified
+// on the chili header badge and the yolk needs-setup/info badges.
+const LOGO_PIN = "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z";
+const LOGO_BITE =
+  "M14.68 2.35 C15.95 0.6 17.68 2.48 18.98 1.0 C20.48 -0.7 22.0 2.05 21.0 3.75 C20.25 5.04 21.5 6.43 19.9 7.29 C18.3 8.15 17.8 6.5 16.13 7.13 C14.45 7.75 13.5 5.25 14.75 3.75 C15.38 3.0 13.9 2.6 14.68 2.35 Z";
+
 const GLYPHS: Record<string, ReactNode> = {
   search: (
     <>
@@ -94,16 +102,9 @@ const GLYPHS: Record<string, ReactNode> = {
       <line x1="9" y1="16" x2="13" y2="16" />
     </>
   ),
-  // fork + knife — the app's primary brand mark (header badge, favicon,
-  // home-screen icon) as well as a general "food" glyph
-  utensils: (
-    <>
-      <path d="M6 2v9" />
-      <path d="M4 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2" />
-      <path d="M6 11v11" />
-      <path d="M17 2c-2 0-3 3-3 6 0 2 1 3 3 3v11" />
-    </>
-  ),
+  // the app's primary brand mark (header badge, favicon, home-screen icon,
+  // loading screen, info modal) — same mark as icon.tsx / apple-icon.tsx
+  logo: <path d={`${LOGO_PIN} ${LOGO_BITE}`} fill="currentColor" fillRule="evenodd" stroke="none" />,
   arrowRight: (
     <>
       <line x1="4" y1="12" x2="19" y2="12" />

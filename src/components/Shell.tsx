@@ -27,7 +27,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen items-center justify-center bg-paper px-6 text-center">
         <div className="max-w-md rounded-ticket border-[3px] border-ink bg-paper-50 p-8 shadow-stamp-lg">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-ink bg-yolk text-ink">
-            <Icon name="utensils" size={26} />
+            <Icon name="logo" size={26} />
           </div>
           <h1 className="font-display text-2xl tracking-wide text-ink">The Lunch Club needs setup</h1>
           <p className="mt-3 text-sm text-ink-soft">
@@ -54,7 +54,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="relative">
             <h1 className="m-0 flex items-center justify-center gap-3">
               <span className="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-[3px] border-ink bg-chili text-paper-50 shadow-stamp-sm">
-                <Icon name="utensils" size={26} />
+                <Icon name="logo" size={26} />
               </span>
               <span className="flex flex-col items-center">
                 <span className="font-display text-[1.5rem] leading-[0.95] tracking-wide text-ink sm:text-[2.1rem]">THE LUNCH</span>
