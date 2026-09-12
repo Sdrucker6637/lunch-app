@@ -6,23 +6,35 @@ rules_version = '2';
 // Matches the app's deliberate design — an open, no-login shared list, same
 // philosophy as the bar-rating app it's based on. Unlike that app (which
 // shipped with no rules file at all), this scopes public read/write to
-// exactly the three collections the app uses, rather than leaving the whole
+// exactly the collections/docs the app uses, rather than leaving the whole
 // project's default rules to decide. Nothing here is sensitive data: no
 // user accounts, no payment info, no PII beyond free-text notes someone
 // chooses to type in.
+//
+// The size caps below don't add auth (there isn't any) — they just stop a
+// single write from ballooning storage/bandwidth cost, since every write to
+// the shared doc replaces the whole spots/rankingDuels array.
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // The single shared document holding every restaurant + ranking duel.
-    match /lunchRadius/{docId} {
-      allow read, write: if true;
+    match /lunchRadius/sharedList {
+      allow read: if true;
+      allow write: if true
+        && (!('spots' in request.resource.data)
+            || (request.resource.data.spots is list && request.resource.data.spots.size() <= 1000))
+        && (!('rankingDuels' in request.resource.data)
+            || (request.resource.data.rankingDuels is list && request.resource.data.rankingDuels.size() <= 5000));
     }
 
     // Shared 24h cache of Google Places search results (also written
     // server-side via the REST API with no auth header — this must stay
     // open for that to work).
     match /placesSearchCache/{docId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true
+        && (!('places' in request.resource.data)
+            || (request.resource.data.places is list && request.resource.data.places.size() <= 50));
     }
 
     // Shared 30-day cache of office -> restaurant walking times.
