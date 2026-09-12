@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import type { ReactNode, SVGProps } from "react";
 
 /**
@@ -7,10 +8,13 @@ import type { ReactNode, SVGProps } from "react";
  * currentColor). No icon library, no emoji.
  */
 
-// Brand mark: a pin with a bite taken out of its edge. The bite is cut via
-// fill-rule="evenodd" (not a matched-color overlay), so it reads as a true
-// hole showing whatever sits behind the icon — same mark works unmodified
-// on the chili header badge and the yolk needs-setup/info badges.
+// Brand mark: a pin with a bite taken out of its edge. The bite is cut with
+// an SVG mask (not fill-rule="evenodd") so it stays confined to the pin's
+// own silhouette — evenodd would also fill the sliver of the bite curve
+// that falls outside the pin, leaving a stray fleck beside the mark. A mask
+// only ever hides part of the pin, so it reads as a true hole regardless of
+// what's behind it — same mark works unmodified on the chili header badge
+// and the yolk needs-setup/info badges.
 const LOGO_PIN = "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z";
 const LOGO_BITE =
   "M14.68 2.35 C15.95 0.6 17.68 2.48 18.98 1.0 C20.48 -0.7 22.0 2.05 21.0 3.75 C20.25 5.04 21.5 6.43 19.9 7.29 C18.3 8.15 17.8 6.5 16.13 7.13 C14.45 7.75 13.5 5.25 14.75 3.75 C15.38 3.0 13.9 2.6 14.68 2.35 Z";
@@ -102,9 +106,6 @@ const GLYPHS: Record<string, ReactNode> = {
       <line x1="9" y1="16" x2="13" y2="16" />
     </>
   ),
-  // the app's primary brand mark (header badge, favicon, home-screen icon,
-  // loading screen, info modal) — same mark as icon.tsx / apple-icon.tsx
-  logo: <path d={`${LOGO_PIN} ${LOGO_BITE}`} fill="currentColor" fillRule="evenodd" stroke="none" />,
   arrowRight: (
     <>
       <line x1="4" y1="12" x2="19" y2="12" />
@@ -154,7 +155,7 @@ const GLYPHS: Record<string, ReactNode> = {
   star: <path d="M12 2l2.4 6.8L21 11l-6.6 2.2L12 22l-2.4-8.8L3 11l6.6-2.2z" />,
 };
 
-export type IconName = keyof typeof GLYPHS;
+export type IconName = keyof typeof GLYPHS | "logo";
 
 interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
   name: IconName;
@@ -165,6 +166,20 @@ interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
 }
 
 export default function Icon({ name, size = 14, filled = false, ...rest }: IconProps) {
+  const maskId = useId();
+
+  if (name === "logo") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...rest}>
+        <mask id={maskId}>
+          <path d={LOGO_PIN} fill="white" />
+          <path d={LOGO_BITE} fill="black" />
+        </mask>
+        <path d={LOGO_PIN} fill="currentColor" mask={`url(#${maskId})`} />
+      </svg>
+    );
+  }
+
   return (
     <svg
       width={size}
