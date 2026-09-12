@@ -127,7 +127,12 @@ export async function POST(req: Request) {
             "Content-Type": "application/json",
             "x-goog-api-key": process.env.GEMINI_API_KEY || "",
           },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            // Caps runaway/pathological output cost per call; normal
+            // enrichment responses are a few hundred tokens.
+            generationConfig: { maxOutputTokens: 2048 },
+          }),
           signal: controller.signal,
         },
       );
